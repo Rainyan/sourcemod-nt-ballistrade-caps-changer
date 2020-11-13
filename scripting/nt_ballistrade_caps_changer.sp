@@ -47,7 +47,7 @@ void ModifyCapZones()
 
 	// These are the new capzone positions wanted. Use POSITION_REMOVE_ME to remove a capzone.
 	float cap_new_positions[NUM_CAPZONES][3] = {
-		{ 564.0,		1161.0,		131.0	}, // CAPZONE_STREET
+		{ -20.0,		684.0,			131.0	}, // CAPZONE_STREET
 		{ POSITION_REMOVE_ME					}, // CAPZONE_STREET_WHITE_BUS_SIDE
 		{ 1749.0,		-3041.0,		256.0	}, // CAPZONE_PARKING_LOT
 		{ POSITION_REMOVE_ME					}, // CAPZONE_QUICK_CAP
