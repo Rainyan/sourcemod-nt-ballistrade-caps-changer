@@ -11,6 +11,8 @@
 // Set capzone new coordinates to this value to mark it for removal.
 #define POSITION_REMOVE_ME POSITION_REMOVE_ME_X,POSITION_REMOVE_ME_Y,POSITION_REMOVE_ME_Z
 
+#define NEO_MAX_PLAYERS 32
+
 public Plugin myinfo = {
 	name = "nt_ballistrade capzone changer",
 	description = "Modify nt_ballistrade cap zones amount and location.",
@@ -62,7 +64,7 @@ void ModifyCapZones()
 	decl String:classname[25 + 1]; // need length of "neo_ghost_retrieval_point" + \0 = 26
 	float pos[3];
 
-	for (int ent = MAXPLAYERS + 1; ent <= max_entities; ++ent) {
+	for (int ent = NEO_MAX_PLAYERS + 1; ent <= max_entities; ++ent) {
 		if (!IsValidEntity(ent)) {
 			continue;
 		}
