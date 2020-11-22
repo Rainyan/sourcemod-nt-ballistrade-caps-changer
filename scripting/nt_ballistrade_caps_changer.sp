@@ -3,7 +3,7 @@
 
 #pragma semicolon 1
 
-#define PLUGIN_VERSION "0.1"
+#define PLUGIN_VERSION "0.2"
 
 #define POSITION_REMOVE_ME_X 1234.5
 #define POSITION_REMOVE_ME_Y 6789.0
