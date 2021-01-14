@@ -3,7 +3,7 @@
 
 #pragma semicolon 1
 
-#define PLUGIN_VERSION "0.2"
+#define PLUGIN_VERSION "0.3"
 
 #define POSITION_REMOVE_ME_X 1234.5
 #define POSITION_REMOVE_ME_Y 6789.0
@@ -107,6 +107,11 @@ void ModifyCapZones()
 		else {
 			//PrintToServer("Found unidentified capzone ent %d (pos: %f %f %f)", ent, pos[0], pos[1], pos[2]);
 		}
+	}
+
+	// Ghostcap plugin caches capzone locations, so because it might load before us, we have to force it to reload after the capzone edit.
+	if (FindConVar("sm_ntghostcap_version") != null) {
+		ServerCommand("sm plugins reload nt_ghostcap");
 	}
 
 	if (num_identified_capzones != NUM_CAPZONES) {
