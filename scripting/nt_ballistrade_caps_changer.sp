@@ -3,7 +3,7 @@
 
 #pragma semicolon 1
 
-#define PLUGIN_VERSION "0.3.1"
+#define PLUGIN_VERSION "0.3.2"
 
 #define POSITION_REMOVE_ME_X 1234.5
 #define POSITION_REMOVE_ME_Y 6789.0
@@ -111,6 +111,10 @@ void ModifyCapZones()
 
 	// Ghostcap plugin caches capzone locations, so because it might load before us, we have to force it to reload after the capzone edit.
 	if (FindConVar("sm_ntghostcap_version") != null) {
+		// Plugin needs to have its default name so that we can actually reload it reliably.
+		if (FindPluginByFile("nt_ghostcap.smx") == INVALID_HANDLE) {
+			SetFailState("Found cvar sm_ntghostcap_version but plugin filename is not the default nt_ghostcap.smx. Unable to safely ensure load order.");
+		}
 		CreateTimer(1.0, Timer_ReloadGhostCapPlugin);
 	}
 
