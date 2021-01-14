@@ -3,7 +3,7 @@
 
 #pragma semicolon 1
 
-#define PLUGIN_VERSION "0.3"
+#define PLUGIN_VERSION "0.3.1"
 
 #define POSITION_REMOVE_ME_X 1234.5
 #define POSITION_REMOVE_ME_Y 6789.0
@@ -111,12 +111,18 @@ void ModifyCapZones()
 
 	// Ghostcap plugin caches capzone locations, so because it might load before us, we have to force it to reload after the capzone edit.
 	if (FindConVar("sm_ntghostcap_version") != null) {
-		ServerCommand("sm plugins reload nt_ghostcap");
+		CreateTimer(1.0, Timer_ReloadGhostCapPlugin);
 	}
 
 	if (num_identified_capzones != NUM_CAPZONES) {
 		ThrowError("Expected to identify %d capzones, but only identified %d of them.", NUM_CAPZONES, num_identified_capzones);
 	}
+}
+
+public Action Timer_ReloadGhostCapPlugin(Handle timer)
+{
+	ServerCommand("sm plugins reload nt_ghostcap");
+	return Plugin_Stop;
 }
 
 bool ShouldRemovePosition(const float[3] pos)
