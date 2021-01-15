@@ -3,7 +3,7 @@
 
 #pragma semicolon 1
 
-#define PLUGIN_VERSION "0.3.2"
+#define PLUGIN_VERSION "0.4"
 
 #define POSITION_REMOVE_ME_X 1234.5
 #define POSITION_REMOVE_ME_Y 6789.0
@@ -12,6 +12,10 @@
 #define POSITION_REMOVE_ME POSITION_REMOVE_ME_X,POSITION_REMOVE_ME_Y,POSITION_REMOVE_ME_Z
 
 #define NEO_MAX_PLAYERS 32
+
+// HACK: these should go to a nt_ghostcap native include
+native int GhostEvents_RemoveCapzone(int capzone_entity);
+native int GhostEvents_UpdateCapzone(int capzone_entity);
 
 public Plugin myinfo = {
 	name = "nt_ballistrade capzone changer",
@@ -32,7 +36,14 @@ public void OnMapStart()
 		return;
 	}
 
+	// Because we can't know plugin load order, and it's critical that we touch the capzones last, delaying a few seconds here.
+	CreateTimer(5.0, Timer_ModifyCapZones);
+}
+
+public Action Timer_ModifyCapZones(Handle timer)
+{
 	ModifyCapZones();
+	return Plugin_Stop;
 }
 
 void ModifyCapZones()
@@ -90,12 +101,15 @@ void ModifyCapZones()
 
 			if (this_capzone_identified) {
 				if (ShouldRemovePosition(cap_new_positions[pos_idx])) {
+					GhostEvents_RemoveCapzone(ent); // Not checking return value because we don't have guarantees on plugin load order
 					if (!AcceptEntityInput(ent, "kill")) {
-						LogError("Failed to kill capzone ent %d (pos: %f %f %f)", ent, pos[0], pos[1], pos[2]);
+						ThrowError("Failed to kill capzone ent %d (pos: %f %f %f)", ent, pos[0], pos[1], pos[2]);
 					}
 				}
 				else {
 					SetEntDataVector(ent, offset_capzone_vecpos, cap_new_positions[pos_idx], true);
+					SetEntPropVector(ent, Prop_Data, "m_vecOrigin", cap_new_positions[pos_idx]);
+					GhostEvents_UpdateCapzone(ent); // Not checking return value because we don't have guarantees on plugin load order
 				}
 				break;
 			}
@@ -109,24 +123,9 @@ void ModifyCapZones()
 		}
 	}
 
-	// Ghostcap plugin caches capzone locations, so because it might load before us, we have to force it to reload after the capzone edit.
-	if (FindConVar("sm_ntghostcap_version") != null) {
-		// Plugin needs to have its default name so that we can actually reload it reliably.
-		if (FindPluginByFile("nt_ghostcap.smx") == INVALID_HANDLE) {
-			SetFailState("Found cvar sm_ntghostcap_version but plugin filename is not the default nt_ghostcap.smx. Unable to safely ensure load order.");
-		}
-		CreateTimer(1.0, Timer_ReloadGhostCapPlugin);
-	}
-
 	if (num_identified_capzones != NUM_CAPZONES) {
 		ThrowError("Expected to identify %d capzones, but only identified %d of them.", NUM_CAPZONES, num_identified_capzones);
 	}
-}
-
-public Action Timer_ReloadGhostCapPlugin(Handle timer)
-{
-	ServerCommand("sm plugins reload nt_ghostcap");
-	return Plugin_Stop;
 }
 
 bool ShouldRemovePosition(const float[3] pos)
